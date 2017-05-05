@@ -37,6 +37,7 @@
 #include <numeric>
 #include <limits>
 #include <inttypes.h>
+#include <boost/sort/sort.hpp>
 
 typedef ArrayItem value_type;
 
@@ -88,7 +89,7 @@ const struct AlgoEntry g_algolist[] =
     { _("Odd-Even Sort"), &OddEvenSort, UINT_MAX, 1024,
       wxEmptyString },
     // older sequential implementation, which really makes little sense to do
-    //{ _("Bitonic Sort"), &BitonicSort, UINT_MAX, UINT_MAX, wxEmptyString },
+    { _("Bitonic Sort"), &BitonicSort, UINT_MAX, UINT_MAX, wxEmptyString },
     { _("Batcher's Bitonic Sort"), &BitonicSortNetwork, UINT_MAX, UINT_MAX,
       wxEmptyString },
     { _("Batcher's Odd-Even Merge Sort"), &BatcherSortNetwork, UINT_MAX, UINT_MAX,
@@ -117,6 +118,10 @@ const struct AlgoEntry g_algolist[] =
     { _("Stooge Sort"), &StoogeSort, 256, inversion_count_instrumented,
       wxEmptyString },
     { _("Slow Sort"), &SlowSort, 128, inversion_count_instrumented,
+      wxEmptyString },
+    { _("Medium Sort v1"), &MediumSort1, 128, inversion_count_instrumented,
+      wxEmptyString },
+    { _("Medium Sort v2"), &MediumSort2, 128, inversion_count_instrumented,
       wxEmptyString }
 };
 
@@ -1031,6 +1036,10 @@ void StlHeapSort(SortArray& A)
     std::make_heap(MyIterator(&A,0), MyIterator(&A,A.size()));
     std::sort_heap(MyIterator(&A,0), MyIterator(&A,A.size()));
 }
+/*
+void BoostSpreadSort(SortArray& A){
+   boost::sort::spreadsort::spreadsort(MyIterator(&A,0), MyIterator(&A,A.size()));
+}*/
 
 // ****************************************************************************
 // *** BogoSort and more slow sorts
@@ -1680,6 +1689,73 @@ void CycleSort(SortArray& array, ssize_t n)
 void CycleSort(SortArray& A)
 {
     CycleSort(A, A.size());
+}
+
+
+void QuickMedium(SortArray& A, ssize_t lo, ssize_t hi);
+
+void SlowMedium(SortArray& A, ssize_t ini, ssize_t fin){
+  if (fin > ini){
+    int mid = (ini+fin)/2;
+
+    QuickMedium(A, ini, mid);
+    QuickMedium(A, mid+1, fin);
+
+    if (A[mid] > A[fin]){
+      A.swap(mid, fin);
+    }
+
+    QuickMedium(A, ini, fin-1);
+  }
+}
+
+void QuickMedium(SortArray& A, ssize_t lo, ssize_t hi)
+{
+    // pick pivot and watch
+    volatile ssize_t p = QuickSortSelectPivot(A, lo, hi+1);
+
+    value_type pivot = A[p];
+    A.watch(&p, 2);
+
+    volatile ssize_t i = lo, j = hi;
+    A.watch(&i, 3);
+    A.watch(&j, 3);
+
+    while (i <= j)
+    {
+        while (A[i] < pivot)
+            i++;
+
+        while (A[j] > pivot)
+            j--;
+
+        if (i <= j)
+        {
+            A.swap(i,j);
+
+            // follow pivot if it is swapped
+            if (p == i) p = j;
+            else if (p == j) p = i;
+
+            i++, j--;
+        }
+    }
+
+    A.unwatch_all();
+
+    if (lo < j)
+        SlowMedium(A, lo, j);
+
+    if (i < hi)
+        SlowMedium(A, i, hi);
+}
+
+void MediumSort1(SortArray& A){
+  QuickMedium(A, 0, A.size()-1);
+}
+
+void MediumSort2(SortArray& A){
+  SlowMedium(A, 0, A.size()-1);
 }
 
 // ****************************************************************************

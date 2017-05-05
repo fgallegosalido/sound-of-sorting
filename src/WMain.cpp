@@ -37,7 +37,7 @@ WMain::WMain(wxWindow* parent)
     infoTextctrl->Hide();
 
     // program icon
-    {    
+    {
         #include "sos.xpm"
 	SetIcon( wxIcon(sos) );
     }
@@ -59,22 +59,22 @@ WMain::WMain(wxWindow* parent)
     sortview->m_array.FillInputlist(inputList);
     inputTypeChoice->Append(inputList);
 
-    sortview->m_array.FillData(0, 100);
+    sortview->m_array.FillData(0, 1235);
     inputTypeChoice->SetSelection(0);
-    arraySizeSlider->SetValue(100);
-    SetArraySize(100);
+    arraySizeSlider->SetValue(1235);
+    SetArraySize(1235);
 
     // insert quicksort pivot rules into wxChoice
     pivotRuleChoice->Append( QuickSortPivotText() );
     pivotRuleChoice->SetSelection(0);
 
     // set default speed
-    speedSlider->SetValue(1000);
-    SetDelay(1000);
+    speedSlider->SetValue(470);
+    SetDelay(470);
 
     // set default sound sustain
-    soundSustainSlider->SetValue(700);
-    SetSoundSustain(700);
+    soundSustainSlider->SetValue(2000);
+    SetSoundSustain(2000);
 
     // create audio output
     SDL_AudioSpec sdlaudiospec;

@@ -101,6 +101,9 @@ void SlowSort(class SortArray& a);
 
 void CycleSort(class SortArray& a);
 
+void MediumSort1(class SortArray& a);
+void MediumSort2(class SortArray& a);
+
 // ****************************************************************************
 // *** Iterator Adapter
 
