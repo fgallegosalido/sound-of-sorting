@@ -90,6 +90,7 @@ void RadixSortMSD(class SortArray& a);
 void StlSort(class SortArray& a);
 void StlStableSort(class SortArray& a);
 void StlHeapSort(class SortArray& a);
+void BoostSpreadSort(class SortArray& a);
 
 void TimSort(class SortArray& a);
 void WikiSort(class SortArray& a);

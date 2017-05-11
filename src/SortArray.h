@@ -27,6 +27,7 @@
 #include <vector>
 #include <algorithm>
 #include <stdlib.h>
+#include <type_traits>
 
 #include <wx/log.h>
 #include <wx/thread.h>
@@ -117,7 +118,66 @@ public:
     { return (value > v.value); }
 
     static void OnComparison(const ArrayItem& a, const ArrayItem& b);
+
+    // operator overloads so it acts exactly as an integer
+    ArrayItem& operator+= (const ArrayItem& rhs)
+    { value += rhs.value; return *this; }
+
+    ArrayItem& operator-= (const ArrayItem& rhs)
+    { value -= rhs.value; return *this; }
+
+    ArrayItem operator+ (const ArrayItem& other) const
+    { return ArrayItem(*this) += other; }
+
+    ArrayItem operator- (const ArrayItem& other) const
+    { return ArrayItem(*this) -= other; }
+
+    // templates needed for bitwise shifting, so the compiler
+    // doesn't complain about types, but still an integral is needed
+    template <class IntegerType>
+    typename std::enable_if<
+         std::is_integral<IntegerType>::value,
+         ArrayItem&>::type operator<<= (const IntegerType rhs)
+    { value <<= rhs; return *this; }
+
+    template <class IntegerType>
+    typename std::enable_if<
+         std::is_integral<IntegerType>::value,
+         ArrayItem&>::type operator>>= (const IntegerType rhs)
+    { value >>= rhs; return *this; }
+
+    template <class IntegerType>
+    typename std::enable_if<
+         std::is_integral<IntegerType>::value,
+         ArrayItem>::type operator<< (const IntegerType shift) const
+    { return ArrayItem(*this) <<= shift; }
+
+    template <class IntegerType>
+    typename std::enable_if<
+         std::is_integral<IntegerType>::value,
+         ArrayItem>::type operator>> (const IntegerType shift) const
+    { return ArrayItem(*this) >>= shift; }
+
+    // some casting overloads...
+    operator long unsigned int() const
+    { return (long unsigned int) value; }
+
+    operator unsigned int() const
+    { return (unsigned int) value; }
+
+    operator long int() const
+    { return (long int) value; }
 };
+
+// in order to make spreadsort accept ArrayItem as an integer,
+// the condition of is_integer in numeric_limits must be true.
+
+namespace std{
+   template <> class numeric_limits<ArrayItem>{
+      public:
+         static const bool is_integer = true;
+   };
+}
 
 // ----------------------------------------------------------------------------
 

@@ -107,6 +107,8 @@ const struct AlgoEntry g_algolist[] =
       wxEmptyString },
     { _("std::sort_heap (gcc)"), &StlHeapSort, UINT_MAX, inversion_count_instrumented,
       wxEmptyString },
+    { _("spreadsort (boost)"), &BoostSpreadSort, UINT_MAX, inversion_count_instrumented,
+      _("If the number of elements is less than 1000, std::sort will be used") },
     { _("Tim Sort"), &TimSort, UINT_MAX, inversion_count_instrumented,
       wxEmptyString },
     { _("Block Merge Sort (WikiSort)"), &WikiSort, UINT_MAX, inversion_count_instrumented,
@@ -1036,10 +1038,11 @@ void StlHeapSort(SortArray& A)
     std::make_heap(MyIterator(&A,0), MyIterator(&A,A.size()));
     std::sort_heap(MyIterator(&A,0), MyIterator(&A,A.size()));
 }
-/*
-void BoostSpreadSort(SortArray& A){
+
+void BoostSpreadSort(SortArray& A)
+{
    boost::sort::spreadsort::spreadsort(MyIterator(&A,0), MyIterator(&A,A.size()));
-}*/
+}
 
 // ****************************************************************************
 // *** BogoSort and more slow sorts
