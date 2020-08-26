@@ -90,7 +90,12 @@ void RadixSortMSD(class SortArray& a);
 void StlSort(class SortArray& a);
 void StlStableSort(class SortArray& a);
 void StlHeapSort(class SortArray& a);
+
 void BoostSpreadSort(class SortArray& a);
+void BoostPDQSort(class SortArray& a);
+void BoostPDQSortBranchless(class SortArray& a);
+void BoostSpinSort(class SortArray& a);
+void BoostFlatStableSort(class SortArray& a);
 
 void TimSort(class SortArray& a);
 void WikiSort(class SortArray& a);
@@ -104,6 +109,8 @@ void CycleSort(class SortArray& a);
 
 void MediumSort1(class SortArray& a);
 void MediumSort2(class SortArray& a);
+
+void SkaSort(class SortArray& a);
 
 // ****************************************************************************
 // *** Iterator Adapter
@@ -166,7 +173,7 @@ public:
     { return &(m_array->get_mutable(m_pos)); }
 
     reference operator[](const difference_type& n) const
-    { return m_array->get_mutable(n); }
+    { return m_array->get_mutable(m_pos + n); }
 
     bool operator==(const MyIterator& r)
     { return (m_array == r.m_array) && (m_pos == r.m_pos); }

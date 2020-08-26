@@ -38,6 +38,7 @@
 #include <limits>
 #include <inttypes.h>
 #include <boost/sort/sort.hpp>
+#include <algorithms/ska_sort.hpp>
 
 typedef ArrayItem value_type;
 
@@ -109,6 +110,14 @@ const struct AlgoEntry g_algolist[] =
       wxEmptyString },
     { _("spreadsort (boost)"), &BoostSpreadSort, UINT_MAX, inversion_count_instrumented,
       _("If the number of elements is less than 1000, std::sort will be used") },
+    { _("pdqsort (boost)"), &BoostPDQSort, UINT_MAX, inversion_count_instrumented,
+      wxEmptyString},
+    { _("pdqsort_branchless (boost)"), &BoostPDQSortBranchless, UINT_MAX, inversion_count_instrumented,
+      wxEmptyString},
+    { _("spinsort (boost)"), &BoostSpinSort, UINT_MAX, inversion_count_instrumented,
+      wxEmptyString},
+    { _("flat_stable_sort (boost)"), &BoostFlatStableSort, UINT_MAX, inversion_count_instrumented,
+      wxEmptyString},
     { _("Tim Sort"), &TimSort, UINT_MAX, inversion_count_instrumented,
       wxEmptyString },
     { _("Block Merge Sort (WikiSort)"), &WikiSort, UINT_MAX, inversion_count_instrumented,
@@ -124,7 +133,9 @@ const struct AlgoEntry g_algolist[] =
     { _("Medium Sort v1"), &MediumSort1, 128, inversion_count_instrumented,
       wxEmptyString },
     { _("Medium Sort v2"), &MediumSort2, 128, inversion_count_instrumented,
-      wxEmptyString }
+      wxEmptyString },
+    { _("ska_sort"), &SkaSort, 128, inversion_count_instrumented,
+      wxEmptyString },
 };
 
 const size_t g_algolist_size = sizeof(g_algolist) / sizeof(g_algolist[0]);
@@ -1039,9 +1050,32 @@ void StlHeapSort(SortArray& A)
     std::sort_heap(MyIterator(&A,0), MyIterator(&A,A.size()));
 }
 
+// ****************************************************************************
+// *** Boost sorting algorithms
+
 void BoostSpreadSort(SortArray& A)
 {
    boost::sort::spreadsort::spreadsort(MyIterator(&A,0), MyIterator(&A,A.size()));
+}
+
+void BoostPDQSort(SortArray& A)
+{
+   boost::sort::pdqsort(MyIterator(&A,0), MyIterator(&A,A.size()));
+}
+
+void BoostPDQSortBranchless(SortArray& A)
+{
+   boost::sort::pdqsort_branchless(MyIterator(&A,0), MyIterator(&A,A.size()));
+}
+
+void BoostSpinSort(SortArray& A)
+{
+   boost::sort::spinsort(MyIterator(&A,0), MyIterator(&A,A.size()));
+}
+
+void BoostFlatStableSort(SortArray& A)
+{
+   boost::sort::flat_stable_sort(MyIterator(&A,0), MyIterator(&A,A.size()));
 }
 
 // ****************************************************************************
@@ -1759,6 +1793,15 @@ void MediumSort1(SortArray& A){
 
 void MediumSort2(SortArray& A){
   SlowMedium(A, 0, A.size()-1);
+}
+
+// Sorting algorithm developed by Malte Skarupke
+void SkaSort(SortArray& A){
+    ska_sort(MyIterator(&A,0), MyIterator(&A,A.size()),
+        [](const auto &a){
+            return a.get();
+        }
+    );
 }
 
 // ****************************************************************************
